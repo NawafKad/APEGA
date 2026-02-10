@@ -1,5 +1,9 @@
 from picozero import pico_led
 from time import sleep
+#picozero is the library we are using, we are importing specifically the pico built in led
+#----keep in mind that when we connect external parts, it won't be as easy as importing the object------
+
+#we are also importing the sleep method from the microprocessors built in time libraries
 
 #making sure the picos built in LED is off.
 pico_led.off()
@@ -65,3 +69,4 @@ def translateLetter(char):
 def translateString(str):
     for i in str:
         translateLetter(i)        
+
