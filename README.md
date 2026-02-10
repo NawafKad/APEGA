@@ -1,3 +1,3 @@
 # APEGA
 
-Comment your code.
+This repository is for code related to the Zamboni bot challenge.
