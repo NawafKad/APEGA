@@ -1,8 +1,10 @@
 from picozero import pico_led
 from time import sleep
 
+#making sure the picos built in LED is off.
 pico_led.off()
 
+#defines each letter an it's coresponding morse code
 morse_code = {
     'a': ".-",
     'b': "-...",
@@ -33,18 +35,21 @@ morse_code = {
     ' ': ' '
 }
 
+#defines what the dot flash looks like and how long it is sustained for
 def dot():
     pico_led.on()
     sleep(0.3)
     pico_led.off()
     sleep(0.3)
-
+    
+#defines what the dash flash looks like and how long it is sustained for
 def dash():
     pico_led.on()
     sleep(1)
     pico_led.off()
     sleep(0.3)
 
+#translates the letter to the morse code
 def translateLetter(char):
     str = morse_code[char]
     print(char + ' ' + str)
@@ -56,7 +61,7 @@ def translateLetter(char):
         elif i == ' ':
             sleep(1)
 
+#goes through a given string translating each letter with it's given code
 def translateString(str):
     for i in str:
         translateLetter(i)        
-#translateString('hello my name is nawaf')
