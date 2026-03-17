@@ -1,9 +1,12 @@
-
-
 //motor A pins
 int enA = 14;
 int in1 = 27;
 int in2 = 26;
+
+//motor B pins
+int enB = 32;
+int in3 = 25;
+int in4 = 33;
 
 void setup() {
   // setup code, runs once
@@ -13,7 +16,11 @@ void setup() {
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT); 
 
-  /*
+  pinMode(enB, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT); 
+
+   /*
 
     MOTORS
   
@@ -49,7 +56,11 @@ void setup() {
   // Motor A
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
+  // Motor B
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
 }
 
 void loop() {
   // Runs repeatedly
+}
