@@ -1,3 +1,4 @@
+
 //motor A pins
 int enA = 14;
 int in1 = 27;
@@ -8,10 +9,20 @@ int enB = 32;
 int in3 = 25;
 int in4 = 33;
 
+// Motor C
+int enC = 23;
+int in5 = 22;
+int in6 = 21;
+
+// Motor D
+int enD = 5;
+int in7 = 19;
+int in8 = 18;
+
 void setup() {
   // setup code, runs once
   
-  //Set motor control pins to outputs
+  //Set motor control pins to output only.
   pinMode(enA, OUTPUT);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT); 
@@ -19,6 +30,14 @@ void setup() {
   pinMode(enB, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT); 
+
+  pinMode(enC, OUTPUT);
+  pinMode(in5, OUTPUT);
+  pinMode(in6, OUTPUT); 
+
+  pinMode(enD, OUTPUT);
+  pinMode(in7, OUTPUT);
+  pinMode(in8, OUTPUT); 
 
    /*
 
@@ -51,14 +70,26 @@ void setup() {
   
   */
 
-  //turn off motors 
+  //turn off motors but enable them
   
   // Motor A
+  digitalWrite(enA, HIGH);
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
   // Motor B
+  digitalWrite(enB, HIGH);
   digitalWrite(in3, LOW);
   digitalWrite(in4, LOW);
+
+  // motor C
+  digitalWrite(enC, HIGH);
+  digitalWrite(in5, LOW);
+  digitalWrite(in6, LOW);
+
+  // Motor D
+  digitalWrite(enD, HIGH);
+  digitalWrite(in7, LOW);
+  digitalWrite(in8, LOW);
 }
 
 void loop() {
