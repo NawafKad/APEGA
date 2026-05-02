@@ -1,5 +1,19 @@
 #include <Bluepad32.h>
 
+// Right
+int en1 = 32;
+int in1 = 25; 
+int in2 = 33;
+// Left
+int en2 = 14;
+int in3 = 27;
+int in4 = 26;
+
+//brush motor
+int enB = 18;
+int in1B = 19;
+int in2B = 23;
+
 ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
 // This callback gets called any time a new gamepad is connected.
@@ -54,7 +68,7 @@ void dumpGamepad(ControllerPtr ctl) {
         ctl->axisRY(),       // (-511 - 512) right Y axis
         ctl->brake(),        // (0 - 1023): brake button
         ctl->throttle(),     // (0 - 1023): throttle (AKA gas) button
-        ctl->miscButtons(),  // bitmask of pressed "misc" buttons
+        ctl->miscButtons()  // bitmask of pressed "misc" buttons
     );
 }
 
@@ -62,6 +76,42 @@ void processGamepad(ControllerPtr ctl) {
     // There are different ways to query whether a button is pressed.
     // By query each button individually:
     //  a(), b(), x(), y(), l1(), etc...
+    
+    //right motor
+    if(ctl->throttle() > 100) {
+      digitalWrite(in1, HIGH);//27
+      digitalWrite(in2, LOW);
+    } else if (ctl->r1()) {
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, HIGH);
+    } else {
+        digitalWrite(in1, LOW);
+        digitalWrite(in2, LOW);
+    }
+
+    //left motor 
+    if(ctl->brake() > 100) {
+      digitalWrite(in3, HIGH);//22
+      digitalWrite(in4, LOW);
+    } else if (ctl->l1()) {
+        digitalWrite(in3, LOW);
+        digitalWrite(in4, HIGH);
+    } else {
+        digitalWrite(in3, LOW);
+        digitalWrite(in4, LOW);
+    }
+
+    //brush
+    if (ctl->dpad() & DPAD_UP) { //on
+        digitalWrite(in1B, HIGH);
+        digitalWrite(in2B, LOW);
+    }
+
+    if (ctl->dpad() & DPAD_DOWN) { //off
+        digitalWrite(in1B, LOW);
+        digitalWrite(in2B, LOW);
+    }
+
 
     // Another way to query controller data is by getting the buttons() function.
     // See how the different "dump*" functions dump the Controller info.
@@ -73,12 +123,6 @@ void processControllers() {
         if (myController && myController->isConnected() && myController->hasData()) {
             if (myController->isGamepad()) {
                 processGamepad(myController);
-            } else if (myController->isMouse()) {
-                processMouse(myController);
-            } else if (myController->isKeyboard()) {
-                processKeyboard(myController);
-            } else if (myController->isBalanceBoard()) {
-                processBalanceBoard(myController);
             } else {
                 Serial.println("Unsupported controller");
             }
@@ -88,6 +132,31 @@ void processControllers() {
 
 // Arduino setup function. Runs in CPU 1
 void setup() {
+
+  pinMode(en1, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT); 
+
+  pinMode(en2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT); 
+
+  pinMode(enB, OUTPUT);
+  pinMode(in1B, OUTPUT);
+  pinMode(in2B, OUTPUT); 
+
+  digitalWrite(en1, HIGH);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
+  // Motor B
+  digitalWrite(en2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, LOW);
+    
+  digitalWrite(enB, HIGH);
+  digitalWrite(in1B, LOW);
+  digitalWrite(in2B, LOW);
+
     Serial.begin(115200);
     Serial.printf("Firmware: %s\n", BP32.firmwareVersion());
     const uint8_t* addr = BP32.localBdAddress();
