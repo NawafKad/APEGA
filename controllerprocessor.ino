@@ -3,17 +3,23 @@
 ControllerPtr myControllers[BP32_MAX_GAMEPADS];
 
 // Driver pins
-const int PWMleft  = 25;   // ENA
-const int IN1left  = 26;
-const int IN2left  = 27;
+const int PWMleft  = 14;   // ENA
+const int IN1left  = 27;
+const int IN2left  = 26;
 
-const int PWMright = 33;   // ENB
-const int IN1right = 16;   // actually IN3 on L298N side
-const int IN2right = 17;   // actually IN4 on L298N side
+const int PWMright = 32;   // ENB
+const int IN1right = 33;   // actually IN3 on L298N side
+const int IN2right = 25;   // actually IN4 on L298N side
+
+// Brush pins
+const int enb = 18;
+const int in4 = 19;
+const int in3 = 23;
 
 // PWM settings
 const int channelL = 0;
 const int channelR = 1;
+const int channelBrush = 2;
 const int pwmFreq = 5000;
 const int pwmResolution = 8;
 
@@ -56,7 +62,7 @@ void onDisconnectedController(ControllerPtr ctl) {
         }
     }
 
-    stopMotors(true, true);
+    stopMotors(true, true, true);
 
     if (!foundController) {
         Serial.println("CALLBACK: Controller disconnected, but not found in myControllers");
@@ -68,6 +74,8 @@ void setupPins() {
     pinMode(IN2left, OUTPUT);
     pinMode(IN1right, OUTPUT);
     pinMode(IN2right, OUTPUT);
+    pinMode(in4, OUTPUT);
+    pinMode(in3, OUTPUT);
 
     ledcSetup(channelL, pwmFreq, pwmResolution);
     ledcAttachPin(PWMleft, channelL);
@@ -75,11 +83,14 @@ void setupPins() {
     ledcSetup(channelR, pwmFreq, pwmResolution);
     ledcAttachPin(PWMright, channelR);
 
+    ledcSetup(channelBrush, pwmFreq, pwmResolution);
+    ledcAttachPin(enb, channelBrush);
+
     // Stop motors initially
-    stopMotors(true, true);
+    stopMotors(true, true, true);
 }
 
-void stopMotors(bool L, bool R) {
+void stopMotors(bool L, bool R, bool brush) {
     if (L) {
         digitalWrite(IN1left, LOW);
         digitalWrite(IN2left, LOW);
@@ -91,13 +102,19 @@ void stopMotors(bool L, bool R) {
         digitalWrite(IN2right, LOW);
         ledcWrite(channelR, 0);
     }
+
+    if (brush) {
+        digitalWrite(in4, LOW);
+        digitalWrite(in3, LOW);
+        ledcWrite(channelBrush, 0);
+    }
 }
 
 void setMotorSpeedLeft(int axis) {
     int dz = 100;
 
     if (abs(axis) < dz) {
-        stopMotors(true, false);
+        stopMotors(true, false, false);
         return;
     }
 
@@ -119,9 +136,9 @@ void setMotorSpeedLeft(int axis) {
 
 void setMotorSpeedRight(int axis) {
     int dz = 100;
-
+    
     if (abs(axis) < dz) {
-        stopMotors(false, true);
+        stopMotors(false, true, false);
         return;
     }
 
@@ -141,17 +158,47 @@ void setMotorSpeedRight(int axis) {
     ledcWrite(channelR, speed);
 }
 
+void setBrushSpeed(int axis) {
+    int dz = 10;
+    
+    if (abs(axis) < dz) {
+        stopMotors(false, false, false);
+        return;
+    }
+
+    int speed = map(abs(axis), dz, 1023, 0, 255);
+    speed = constrain(speed, 0, 255);
+
+    if (axis < 0) {
+        // Forward
+        digitalWrite(in4, HIGH);
+        digitalWrite(in3, LOW);
+    } else {
+        // Reverse
+        digitalWrite(in4, LOW);
+        digitalWrite(in3, HIGH);
+    }
+
+    ledcWrite(channelBrush, speed);
+}
+
 void processGamepad(ControllerPtr ctl) {
     int y = ctl->axisY();
     int ry = ctl->axisRY();
+    int throttle = ctl->throttle();
+    int brake = ctl->brake();
+    int trigger = throttle - brake;
 
     Serial.print("Y: ");
     Serial.print(y);
     Serial.print("  RY: ");
     Serial.println(ry);
+    Serial.print("  Trigger: ");
+    Serial.println(trigger);
 
     setMotorSpeedLeft(y);
     setMotorSpeedRight(ry);
+    setBrushSpeed(trigger);
 }
 
 void setup() {
